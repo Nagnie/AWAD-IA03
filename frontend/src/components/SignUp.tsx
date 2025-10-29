@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, LockIcon, Eye, EyeOff, AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
+import { Mail, LockIcon, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -24,9 +25,13 @@ export default function SignUp() {
         mutationFn: registerUser,
         onSuccess: () => {
             reset();
+            toast.success("Registration Successful! Redirecting to login...");
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
+        },
+        onError: (error: Error) => {
+            toast.error(`Registration Failed: ${error.message}`);
         },
     });
 
@@ -102,24 +107,6 @@ export default function SignUp() {
                                 )}
                             </div>
 
-                            {mutation.isError && (
-                                <div className="text-red-500 flex items-center gap-2">
-                                    <AlertCircle className="w-4 h-4" />
-                                    <p>
-                                        {mutation.error instanceof Error
-                                            ? mutation.error.message
-                                            : 'Registration failed. Please try again.'}
-                                    </p>
-                                </div>
-                            )}
-
-                            {mutation.isSuccess && (
-                                <div className="text-green-600 flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4" />
-                                    <p>Account created successfully! Redirecting to login...</p>
-                                </div>
-                            )}
-
                             <Button
                                 variant="default"
                                 type="submit"
@@ -137,7 +124,7 @@ export default function SignUp() {
                         <p className="text-muted-foreground">
                             Already have an account?{' '}
                             <Link to="/login" className="ms-1 text-foreground font-bold underline">
-                                Sign in
+                                Log in
                             </Link>
                         </p>
                     </CardFooter>

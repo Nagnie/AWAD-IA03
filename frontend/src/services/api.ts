@@ -26,10 +26,14 @@ api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error: AxiosError) => {
-    const message = error.message || 'An error occurred';
+  (error: AxiosError<ApiErrorResponse>) => {
+    const message = error.response?.data?.message || error.message || 'An error occurred';
     console.error('API Error:', message);
-    return Promise.reject(new Error(message));
+    
+    const customError = new Error(message) as Error & { statusCode?: number };
+    customError.statusCode = error.response?.status;
+    
+    return Promise.reject(customError);
   }
 );
 
@@ -53,18 +57,7 @@ export interface ApiErrorResponse {
   message: string;
 }
 
-export const registerUser = async (data: RegisterData): Promise<RegisterResponse | ApiErrorResponse> => {
-  try {
-    const response = await api.post('/user/register', data);
-    return response.data;
-  } catch (error: unknown) {
-    const message =
-      error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string'
-        ? (error as any).message
-        : 'Registration failed';
-    return {
-      success: false,
-      message,
-    };
-  }
+export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
+  const response = await api.post<RegisterResponse>('/user/register', data);
+  return response.data;
 };

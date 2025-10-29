@@ -5,33 +5,30 @@ const User = require('../models/User');
 const router = express.Router();
 
 // POST /user/register
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
         // Validate input
         if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email and password are required'
-            });
+            const error = new Error('Email and password are required');
+            error.statusCode = 400;
+            throw error;
         }
 
         // Validate email format
         const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide a valid email address'
-            });
+            const error = new Error('Please provide a valid email address');
+            error.statusCode = 400;
+            throw error;
         }
 
         // Validate password length
         if (password.length < 6) {
-            return res.status(400).json({
-                success: false,
-                message: 'Password must be at least 6 characters'
-            });
+            const error = new Error('Password must be at least 6 characters');
+            error.statusCode = 400;
+            throw error;
         }
 
         // Check if user already exists
@@ -40,10 +37,9 @@ router.post('/register', async (req, res) => {
         });
 
         if (existingUser) {
-            return res.status(409).json({
-                success: false,
-                message: 'Email already registered'
-            });
+            const error = new Error('Email already registered');
+            error.statusCode = 409;
+            throw error;
         }
 
         // Hash password
@@ -67,49 +63,21 @@ router.post('/register', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Registration error:', error);
-
         // Handle Sequelize validation errors
         if (error.name === 'SequelizeValidationError') {
             const messages = error.errors.map(err => err.message);
-            return res.status(400).json({
-                success: false,
-                message: messages.join(', ')
-            });
+            error.message = messages.join(', ');
+            error.statusCode = 400;
         }
 
         // Handle unique constraint errors
         if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.status(409).json({
-                success: false,
-                message: 'Email already registered'
-            });
+            error.message = 'Email already registered';
+            error.statusCode = 409;
         }
 
-        res.status(500).json({
-            success: false,
-            message: 'Server error. Please try again later.'
-        });
-    }
-});
-
-// GET /user/all (for testing - remove in production)
-router.get('/all', async (req, res) => {
-    try {
-        const users = await User.findAll({
-            attributes: ['id', 'email', 'createdAt']
-        });
-        res.json({
-            success: true,
-            count: users.length,
-            data: users
-        });
-    } catch (error) {
-        console.error('Get users error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
+        // Pass error to error handler middleware
+        next(error);
     }
 });
 

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, LockIcon, Eye, EyeOff, AlertCircle, RefreshCw } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface LoginData {
     email: string;
@@ -27,11 +28,12 @@ export default function Login() {
     const onSubmit = (data: LoginData) => {
         setIsLoading(true);
         setError('');
+        toast.success("Login Successful! Redirecting...");
 
         setTimeout(() => {
             console.log('Login attempt:', data);
             setIsLoading(false);
-            navigate('/dashboard');
+            navigate('/');
         }, 1000);
     };
 
@@ -40,7 +42,7 @@ export default function Login() {
             <div className="w-full max-w-md px-4">
                 <Card className="w-full px-4 py-8">
                     <CardHeader className="text-start">
-                        <CardTitle className="font-bold text-2xl">Sign in to your account</CardTitle>
+                        <CardTitle className="font-bold text-2xl">Log in to your account</CardTitle>
                         <CardDescription>
                             Welcome back! Please sign in to continue.
                         </CardDescription>
@@ -119,7 +121,7 @@ export default function Login() {
                                 {isLoading && (
                                     <RefreshCw className="w-4 h-4 animate-spin mr-2" />
                                 )}
-                                Sign in
+                                Log in
                             </Button>
                         </form>
                     </CardContent>
