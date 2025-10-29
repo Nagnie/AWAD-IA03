@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, LockIcon, Eye, EyeOff, AlertCircle, RefreshCw } from 'lucide-react';
@@ -28,11 +28,10 @@ export default function Login() {
         setIsLoading(true);
         setError('');
 
-        // Mock login - no backend logic required
         setTimeout(() => {
             console.log('Login attempt:', data);
             setIsLoading(false);
-            navigate('/');
+            navigate('/dashboard');
         }, 1000);
     };
 
